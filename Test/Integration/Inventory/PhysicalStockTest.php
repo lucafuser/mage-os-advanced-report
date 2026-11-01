@@ -6,12 +6,12 @@ namespace MageOS\AdvancedReport\Test\Integration\Inventory;
 
 use Magento\Catalog\Test\Fixture\Product;
 use Magento\InventoryApi\Test\Fixture\DeleteSourceItems;
-use Magento\InventoryApi\Test\Fixture\Source;
 use Magento\InventoryApi\Test\Fixture\SourceItems;
 use Magento\TestFramework\Fixture\AppArea;
 use Magento\TestFramework\Fixture\AppIsolation;
 use Magento\TestFramework\Fixture\DataFixture;
 use Magento\TestFramework\Fixture\DbIsolation;
+use MageOS\AdvancedReport\Test\Integration\Fixture\Source;
 use MageOS\AdvancedReport\Test\Integration\Helper\ReportTestRunner;
 use PHPUnit\Framework\TestCase;
 

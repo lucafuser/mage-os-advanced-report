@@ -10,6 +10,13 @@ final class IndexTimingAssetsTest extends TestCase
 {
     private const string MODULE_ROOT = __DIR__ . '/../../..';
 
+    protected function setUp(): void
+    {
+        if (!is_dir(self::MODULE_ROOT . '/dev/benchmark')) {
+            self::markTestSkipped('dev/benchmark is export-ignored: not part of the installed package.');
+        }
+    }
+
     public function testItMeasuresIndexBuildTimeOnTableCopiesWithoutAlteringNativeTables(): void
     {
         $sql = (string) file_get_contents(self::MODULE_ROOT . '/dev/benchmark/index-timing.sql');

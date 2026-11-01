@@ -13,6 +13,13 @@ final class BenchmarkSeedAssetsTest extends TestCase
 {
     private const string BENCHMARK_DIR = __DIR__ . '/../../../dev/benchmark';
 
+    protected function setUp(): void
+    {
+        if (!is_dir(self::BENCHMARK_DIR)) {
+            self::markTestSkipped('dev/benchmark is export-ignored: not part of the installed package.');
+        }
+    }
+
     /**
      * @return array<string, array{string, int}>
      */
