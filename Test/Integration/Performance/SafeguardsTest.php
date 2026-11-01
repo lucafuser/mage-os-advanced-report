@@ -66,8 +66,8 @@ final class SafeguardsTest extends AbstractBackendController
 {
     private const string DATA_URI = 'backend/advancedreport/report/data';
 
-    /** Statements reading report tables. */
-    private const string REPORT_TABLES = '/\b(?:sales_order\w*|inventory_\w+|cataloginventory_\w+|customer_entity)\b/';
+    /** Statements reading report tables (the lookbehind admits a table prefix such as `pre_`, which \b would not). */
+    private const string REPORT_TABLES = '/(?<![a-z0-9])(?:sales_order\w*|inventory_\w+|cataloginventory_\w+|customer_entity)\b/i';
 
     /**
      * Never hinted on purpose: server version and timezone-support probes (excluded from the timeout by design) the
