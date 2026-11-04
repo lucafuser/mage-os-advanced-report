@@ -82,6 +82,16 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="presetChartTypeName">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="line"/>
+            <xs:enumeration value="bar"/>
+            <xs:enumeration value="horizontalBar"/>
+            <xs:enumeration value="doughnut"/>
+            <xs:enumeration value="pie"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:element name="config">
         <xs:complexType>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -174,6 +184,7 @@
             <xs:element name="dimension" type="presetDimensionType" maxOccurs="unbounded"/>
             <xs:element name="filter" type="presetFilterType" maxOccurs="unbounded"/>
             <xs:element name="sort" type="presetSortType" maxOccurs="unbounded"/>
+            <xs:element name="chart" type="presetChartType" maxOccurs="1"/>
         </xs:choice>
         <xs:attribute name="code" type="xs:string" use="required"/>
         <xs:attribute name="area" type="areaType" use="required"/>
@@ -205,6 +216,16 @@
     <xs:complexType name="presetSortType">
         <xs:attribute name="by" type="xs:string" use="required"/>
         <xs:attribute name="direction" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="presetChartType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="metric" type="presetMetricType"/>
+            <xs:element name="dimension" type="presetDimensionType"/>
+        </xs:choice>
+        <xs:attribute name="type" type="presetChartTypeName" use="optional"/>
+        <xs:attribute name="sortBy" type="xs:string" use="optional"/>
+        <xs:attribute name="sortDirection" type="xs:string" use="optional"/>
     </xs:complexType>
 
 </xs:schema>

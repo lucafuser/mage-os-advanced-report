@@ -33,6 +33,7 @@ use MageOS\AdvancedReport\Model\Security\DatasetAccess;
  *   hidden and virtual metrics are omitted from the pickers.
  * - request: initial report request (preset defaults, saved definition or empty exploration).
  * - alternateDimension: null | {primary, alternate} dimension codes the preset toggles between (e.g. parent_sku / sku).
+ * - chart: null | {type, metrics, dimensions, sort, defaultDimensions}.
  * - saved: null | {id, name, is_shared, is_owner}.
  * - urls: {data, save, delete, export, index, view, config}; data/save/delete carry `isAjax=true`; view holds an
  *   `__ID__` placeholder for the saved report id;
@@ -91,6 +92,7 @@ class Exploration implements ArgumentInterface
                 'datasets' => $this->getDatasets(),
                 'request' => $state['request'],
                 'alternateDimension' => $this->getAlternateDimension($state['request']['preset'] ?? null),
+                'chart' => $this->getChart($state['request']['preset'] ?? null),
                 'saved' => $state['saved'],
                 'urls' => $this->getUrls(),
                 'permissions' => $this->getPermissions(),
@@ -154,6 +156,32 @@ class Exploration implements ArgumentInterface
         return $preset->alternateDimension !== null && $primary !== null
             ? ['primary' => $primary, 'alternate' => $preset->alternateDimension]
             : null;
+    }
+
+    /**
+     * @param mixed $presetCode
+     * @return array<string,mixed>|null
+     */
+    protected function getChart(mixed $presetCode): ?array
+    {
+        if (!\is_string($presetCode) || $presetCode === '') {
+            return null;
+        }
+        try {
+            $preset = $this->registry->getPreset($presetCode);
+        } catch (NoSuchDefinitionException) {
+            return null;
+        }
+
+        return $preset->resolveChart() + [
+            'defaultDimensions' => array_map(
+                static fn (array $dimension): array => [
+                    'code' => $dimension['code'],
+                    'granularity' => $dimension['granularity']?->value,
+                ],
+                $preset->dimensions
+            ),
+        ];
     }
 
     /**

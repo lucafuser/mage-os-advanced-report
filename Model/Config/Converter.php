@@ -255,6 +255,7 @@ class Converter implements ConverterInterface
                 'dimensions' => $this->convertPresetDimensions($node),
                 'filters' => $this->convertPresetFilters($node),
                 'sort' => $this->convertPresetSort($node),
+                'chart' => $this->convertPresetChart($node),
             ];
         }
 
@@ -333,6 +334,26 @@ class Converter implements ConverterInterface
         }
 
         return $sort;
+    }
+
+    /**
+     * @param \DOMElement $presetNode
+     * @return array{type:string|null,metrics:string[],dimensions:array<int,array{code:string,granularity:string|null}>,sortBy:string|null,sortDirection:string|null}|null
+     */
+    protected function convertPresetChart(\DOMElement $presetNode): ?array
+    {
+        $chartNode = $this->children($presetNode, 'chart')[0] ?? null;
+        if ($chartNode === null) {
+            return null;
+        }
+
+        return [
+            'type' => $this->attr($chartNode, 'type'),
+            'metrics' => $this->convertPresetMetrics($chartNode),
+            'dimensions' => $this->convertPresetDimensions($chartNode),
+            'sortBy' => $this->attr($chartNode, 'sortBy'),
+            'sortDirection' => $this->attr($chartNode, 'sortDirection'),
+        ];
     }
 
     /**

@@ -104,6 +104,7 @@ class DefinitionFactory
             presetQuery: $data['presetQuery'],
             alternateDimension: $data['alternateDimension'],
             description: $data['description'] ?? '',
+            chart: $data['chart'] ?? null,
         );
     }
 

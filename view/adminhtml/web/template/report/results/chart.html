@@ -1,5 +1,20 @@
 <div class="advancedreport-chart-card advancedreport-card" data-bind="visible: hasChart">
+    <div class="advancedreport-chart-toolbar">
+        <!-- ko if: groups().length > 1 -->
+        <div class="advancedreport-chart-groups" role="group" data-bind="foreach: groups">
+            <button type="button" class="advancedreport-chart-group"
+                    data-bind="text: label, css: {_active: $parent.activeIndex() === $index()},
+                               attr: {'aria-pressed': $parent.activeIndex() === $index() ? 'true' : 'false'},
+                               click: function () { $parent.groupIndex($index()); }"></button>
+        </div>
+        <!-- /ko -->
+        <label class="advancedreport-chart-type">
+            <span data-bind="text: labels.chartType"></span>
+            <select class="admin__control-select"
+                    data-bind="options: typeOptions, optionsText: 'label', optionsValue: 'value', value: type"></select>
+        </label>
+    </div>
     <div class="advancedreport-chart">
-        <canvas data-bind="advancedreportChart: {result: result, locale: locale}"></canvas>
+        <canvas data-bind="advancedreportChart: config"></canvas>
     </div>
 </div>

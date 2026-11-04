@@ -390,6 +390,34 @@ final class DefinitionValidatorTest extends TestCase
         ];
     }
 
+    /**
+     * @return void
+     * @throws InvalidDefinitionException
+     */
+    public function testItReportsAPresetChartMetricNotDeclaredOnTheDataset(): void
+    {
+        $dataset = $this->dataset(
+            fields: [$this->field('grand_total', FieldType::MONEY)],
+            metrics: [$this->aggregateMetric('orders', 'grand_total')],
+        );
+        $preset = self::preset(
+            metrics: ['orders'],
+            chart: [
+                'type' => 'line',
+                'metrics' => ['missing_metric'],
+                'dimensions' => [],
+                'sortBy' => null,
+                'sortDirection' => null,
+            ],
+        );
+        $validator = $this->developerValidator();
+
+        $this->expectException(InvalidDefinitionException::class);
+        $this->expectExceptionMessageMatches('/chart uses metric "missing_metric" not declared/');
+
+        $validator->validate(['sales_orders' => $dataset], ['sales_overview' => $preset]);
+    }
+
     public function testItReportsVirtualMetricsUsedOutsidePresetQueryPresets(): void
     {
         $dataset = $this->dataset(metrics: [$this->virtualMetric('coverage_days')]);
@@ -591,6 +619,7 @@ final class DefinitionValidatorTest extends TestCase
      * @param array<int,array{code:string,granularity:Granularity|null}> $dimensions
      * @param array<int,array{field:string,operator:FilterOperator,value:mixed}> $filters
      * @param array<int,array{metric:string,direction:string}> $sort
+     * @param array<string,mixed>|null $chart
      */
     private static function preset(
         string $code = 'sales_overview',
@@ -600,6 +629,7 @@ final class DefinitionValidatorTest extends TestCase
         array $filters = [],
         array $sort = [],
         ?string $presetQuery = null,
+        ?array $chart = null,
     ): Preset {
         return new Preset(
             code: $code,
@@ -614,6 +644,7 @@ final class DefinitionValidatorTest extends TestCase
             dateRange: null,
             sources: ['mysql'],
             presetQuery: $presetQuery,
+            chart: $chart,
         );
     }
 
