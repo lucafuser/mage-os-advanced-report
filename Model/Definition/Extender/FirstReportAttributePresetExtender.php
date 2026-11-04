@@ -68,6 +68,7 @@ class FirstReportAttributePresetExtender implements PresetExtenderInterface
             $preset->presetQuery,
             $preset->alternateDimension,
             $preset->description,
+            $preset->chart,
         );
     }
 }

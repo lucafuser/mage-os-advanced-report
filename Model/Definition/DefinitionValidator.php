@@ -614,6 +614,7 @@ class DefinitionValidator
             ...$this->collectPresetDimensionErrors($preset, $dataset),
             ...$this->collectPresetFilterErrors($preset, $dataset),
             ...$this->collectPresetSortErrors($preset),
+            ...$this->collectPresetChartErrors($preset, $dataset),
         ];
     }
 
@@ -751,6 +752,73 @@ class DefinitionValidator
                     $sort['metric']
                 );
             }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param Preset $preset
+     * @param Dataset $dataset
+     * @return string[]
+     */
+    protected function collectPresetChartErrors(Preset $preset, Dataset $dataset): array
+    {
+        if ($preset->chart === null) {
+            return [];
+        }
+
+        $errors = [];
+        $type = $preset->chart['type'] ?? null;
+        if ($type !== null && !\in_array($type, Preset::CHART_TYPES, true)) {
+            $errors[] = \sprintf('Preset "%s" uses unknown chart type "%s".', $preset->code, $type);
+        }
+
+        $metrics = $preset->chart['metrics'] ?? [];
+        foreach ($metrics as $metricCode) {
+            if (!isset($dataset->metrics[$metricCode])) {
+                $errors[] = \sprintf(
+                    'Preset "%s" chart uses metric "%s" not declared on dataset "%s".',
+                    $preset->code,
+                    $metricCode,
+                    $dataset->code
+                );
+            }
+        }
+
+        $dimensions = $preset->chart['dimensions'] ?? [];
+        foreach ($dimensions as $requested) {
+            $dimension = $dataset->dimensions[$requested['code']] ?? null;
+            if ($dimension === null) {
+                $errors[] = \sprintf(
+                    'Preset "%s" chart uses dimension "%s" not declared on dataset "%s".',
+                    $preset->code,
+                    $requested['code'],
+                    $dataset->code
+                );
+                continue;
+            }
+
+            $granularity = $requested['granularity'] ?? null;
+            if ($granularity !== null
+                && !\in_array(Granularity::tryFrom($granularity), $dimension->getGranularities(), true)
+            ) {
+                $errors[] = \sprintf(
+                    'Preset "%s" chart uses granularity "%s" not allowed for dimension "%s".',
+                    $preset->code,
+                    $granularity,
+                    $requested['code']
+                );
+            }
+        }
+
+        $sortBy = $preset->chart['sortBy'] ?? null;
+        if ($sortBy !== null && !\in_array($sortBy, [...$metrics, ...array_column($dimensions, 'code')], true)) {
+            $errors[] = \sprintf(
+                'Preset "%s" chart sorts by "%s" which is not one of its metrics or dimensions.',
+                $preset->code,
+                $sortBy
+            );
         }
 
         return $errors;

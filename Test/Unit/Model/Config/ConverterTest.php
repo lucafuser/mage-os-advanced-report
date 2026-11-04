@@ -132,8 +132,30 @@ final class ConverterTest extends TestCase
                 'sort' => [
                     ['metric' => 'orders', 'direction' => 'desc'],
                 ],
+                'chart' => null,
             ],
             $result['presets']['sales_overview']
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testItConvertsThePresetChartWithoutMixingItsMetricsAndDimensionsWithThePresetOnes(): void
+    {
+        $preset = (new Converter())->convert($this->loadFixture('preset_chart.xml'))['presets']['recent_carts'];
+
+        self::assertSame(['cart_value', 'items_in_carts'], $preset['metrics']);
+        self::assertSame([['code' => 'cart_id', 'granularity' => null]], $preset['dimensions']);
+        self::assertSame(
+            [
+                'type' => 'bar',
+                'metrics' => ['cart_value', 'carts'],
+                'dimensions' => [['code' => 'activity_date', 'granularity' => 'day']],
+                'sortBy' => 'activity_date',
+                'sortDirection' => 'asc',
+            ],
+            $preset['chart']
         );
     }
 

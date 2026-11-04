@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config>
+    <preset code="recent_carts" area="carts" dataset="carts" label="Recent carts" sources="mysql">
+        <metric code="cart_value"/>
+        <metric code="items_in_carts"/>
+        <dimension code="cart_id"/>
+        <chart type="bar" sortBy="activity_date" sortDirection="asc">
+            <metric code="cart_value"/>
+            <metric code="carts"/>
+            <dimension code="activity_date" granularity="day"/>
+        </chart>
+    </preset>
+</config>
