@@ -10,7 +10,8 @@ metrics and dimensions are declared in XML and translated to SQL by a MySQL data
   new vs returning customers, coupon performance, product performance, sales by category/attribute,
   customer value, new customer registrations, stock value, low stock with coverage, dead stock, never sold).
 - Free exploration: pick metrics, group by dimensions, filter, compare to the previous period/year,
-  chart and table, CSV export.
+  chart and table, CSV export. Each preset declares its default chart; the chart type can be changed from the chart
+  card for the current page.
 - Saved reports (private or shared with other admins) stored in `mageos_advancedreport_saved`.
 - Everything is computed live from the native Magento tables (no aggregation tables, no cron).
 
@@ -363,6 +364,10 @@ column `sales_order.acme_channel_id` that points to a table `acme_channel (chann
         <dimension code="acme_channel"/>
         <filter field="is_marketplace" operator="eq" value="1"/>
         <sort by="net_sales" direction="desc"/>
+        <!-- Default chart of the report, also used by MageOS_DashboardChart. -->
+        <chart type="doughnut">
+            <metric code="net_sales"/>
+        </chart>
     </preset>
 </config>
 ```
@@ -376,7 +381,13 @@ Attribute reference:
 | `field` | `code`, `label`, `type` (`money`, `integer`, `decimal`, `boolean`, `string`, `id`, `date`), optional `description`. Child `<mysql expression="..." joins="a,b"/>` or `<mysql expressionProvider="name"/>`. |
 | `metric` | `code`, `label`, `format` (`money`, `number`, `percent`, `integer`), `description`, `lowerIsBetter` (colours the comparison delta), `hidden` (formula helper not shown in the picker). Either `aggregate` (`sum`, `count`, `count_distinct`, `min`, `max`, `avg`) + `field` + optional `condition` (a boolean field), or `formula`, or `virtual="true"` (value supplied by a preset query). |
 | `dimension` | `code`, `label`, `field`, optional `labelResolver` (class name), `granularities` (for date fields: `hour,day,week,month,year`), `nonAdditive="true"` (rows may not sum up to the total; a warning is shown). |
-| `preset` | `code`, `area`, `dataset`, `label`, optional `description`, `dateRange` (`today`, `last_7_days`, `last_30_days`, `month_to_date`, `last_month`, `year_to_date`), `compareTo` (`none`, `previous_period`, `previous_year`), `sources`, `presetQuery`, `alternateDimension`. Children: `<metric code=""/>`, `<dimension code="" granularity=""/>`, `<filter field="" operator="eq\|neq\|in\|nin\|gte\|lte\|between" value=""/>`, `<sort by="" direction="asc\|desc"/>`. |
+| `preset` | `code`, `area`, `dataset`, `label`, optional `description`, `dateRange` (`today`, `last_7_days`, `last_30_days`, `month_to_date`, `last_month`, `year_to_date`), `compareTo` (`none`, `previous_period`, `previous_year`), `sources`, `presetQuery`, `alternateDimension`. Children: `<metric code=""/>`, `<dimension code="" granularity=""/>`, `<filter field="" operator="eq\|neq\|in\|nin\|gte\|lte\|between" value=""/>`, `<sort by="" direction="asc\|desc"/>`, `<chart/>`. |
+| `chart` (inside `preset`) | Optional `type` (`line`, `bar`, `horizontalBar`, `doughnut`, `pie`), `sortBy` (a metric or dimension of the chart), `sortDirection` (`asc`, `desc`). Children: `<metric code=""/>`, `<dimension code="" granularity=""/>`. Without it the chart uses the first dimension of the preset, its sort metric (or first metric), a line for a date dimension and horizontal bars otherwise. Metrics of different formats get a switcher (never two value axes); doughnut and pie draw one metric and fold the slices past the seventh into "Other". |
+
+While a report keeps the default dimensions of its preset, the chart follows `<chart>`; when `<chart>` declares other
+dimensions, the page runs one additional report for the chart. After changing the dimensions, the chart draws the first
+dimension and the first metric. The type selected on the chart card lasts for the current page: it is not stored in
+saved reports nor in the URL.
 
 **3. Add a label resolver** when the dimension stores ids or codes. Extend
 `MageOS\AdvancedReport\Model\Label\AbstractLabelResolver` (it labels empty values "(none)" and keeps unknown values
