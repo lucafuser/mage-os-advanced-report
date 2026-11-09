@@ -1,3 +1,5 @@
+Current project being moved into Mage-OS Organization. See https://github.com/mage-os-lab/module-advanced-report
+
 # MageOS_AdvancedReport
 
 Advanced sales, catalog and customer reporting for Magento Open Source / Mage-OS. It adds an admin
